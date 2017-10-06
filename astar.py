@@ -84,7 +84,7 @@ class Tree:
                     new_steps.extend([elem[0]+1, elem[1]+1])
 
                     new_cost = node.cost + max(self.fitness[elem[0]], self.fitness[elem[1]])
-                    new_node = Node(new_cost, 0 , new_state, new_steps)
+                    new_node = Node(new_cost, h , new_state, new_steps)
                     #print("new ",new_state)
                     if not self.has_repeated_states(new_node):
                             bisect.insort(self.fringe, new_node)

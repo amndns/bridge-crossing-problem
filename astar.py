@@ -77,12 +77,12 @@ class Tree:
             #print(fin)
             for elem in fin:
                     new_state = list(node.state)
-                    
+
                     new_state[elem[0]] = 1
                     new_state[elem[1]] = 1
                     new_steps = list(node.steps)
                     new_steps.extend([elem[0]+1, elem[1]+1])
-                    
+
                     new_cost = node.cost + max(self.fitness[elem[0]], self.fitness[elem[1]])
                     new_node = Node(new_cost, 0 , new_state, new_steps)
                     #print("new ",new_state)
@@ -110,7 +110,7 @@ class Tree:
         while True:
             if not self.fringe:
                 return 'Failure'
-            
+
             # Explore Fringe
             node = self.fringe.pop(0)
             num_visited += 1
@@ -121,9 +121,14 @@ class Tree:
 
             self.generate_nodes(node)
 
-inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55]
-#[1,2,5,9,15,15,19]
+import time
+t = time.process_time()
+
+# inp = [1,2,5,10] #(a)
+inp = [1,2,5,10,3,4,14,18,20,50] #(b)
+# inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55] #(c)
 state_space = Tree(sorted(inp))
 state_space.a_star()
 
-
+elapsed_time = time.process_time() - t
+print(elapsed_time)

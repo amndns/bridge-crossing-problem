@@ -96,8 +96,14 @@ class Tree:
             # Generate Successor States
             self.generate_nodes(node)
 
+import time
+t = time.process_time()
 
-# inp = [19,1,2,15,5,15,9]
-inp = [4,21,31]
+# inp = [1,2,5,10] #(a)
+inp = [1,2,5,10,3,4,14,18,20,50] #(b)
+# inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55] #(c)
 state_space = Tree(inp)
 state_space.uniform_cost_search()
+
+elapsed_time = time.process_time() - t
+print(elapsed_time)

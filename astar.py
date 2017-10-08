@@ -46,8 +46,9 @@ class Tree:
         cost = 0
         root = Node(cost, 0, state, steps)
 
+        self.orig = fitness
         self.fringe = [root]
-        self.fitness = fitness
+        self.fitness = sorted(fitness)
 
     def has_repeated_states(self, node):
         for item in self.fringe:
@@ -79,22 +80,22 @@ class Tree:
     def generate_nodes(self,node):
         fitness_len = len(self.fitness)
         if len(node.steps) % 3 == 0:
-            #print("old " ,node.state)
+            #print("oldL " ,node.state," ",node.cost)
             h = self.find_heuristic(node,0)
             fin = []
             left = []
             c = 0
-            for elem in list(range(fitness_len)):
+            for elem in range(fitness_len):
                     if node.state[elem] == 0:
                             left.append(elem)
                             c += 1
-            a = min(left)
-            b = second_smallest(left)
+            a = left[0]
+            b = left[1]           
             if c == 2:
                 fin = [[a,b]]                
             else:
-                c = max(left)
-                d = second_largest(left)
+                c = left[-1]
+                d = left[-2]
                 fin = [[a,b],[a,c],[d,c]]
                
             c = 0
@@ -105,14 +106,21 @@ class Tree:
                     new_state[elem[0]] = 1
                     new_state[elem[1]] = 1
                     new_steps = list(node.steps)
-                    new_steps.extend([elem[0]+1, elem[1]+1])
+                    if(self.fitness[elem[0]]==self.fitness[elem[1]]):
+                        for f in range(self.orig.index(self.fitness[elem[0]])+1,fitness_len):
+                            if(self.fitness[elem[1]]==self.fitness[f]):
+                                new_steps.extend([self.orig.index(self.fitness[elem[0]])+1, f+1])
+                                break
+                    else:
+                        new_steps.extend([self.orig.index(self.fitness[elem[0]])+1, self.orig.index(self.fitness[elem[1]])+1])
 
                     new_cost = node.cost + max(self.fitness[elem[0]], self.fitness[elem[1]])
                     new_node = Node(new_cost, h , new_state, new_steps)
-                    #print("new ",new_state)
+                    #print("newL ",new_state," ",new_cost)
                     if not self.has_repeated_states(new_node):
                             bisect.insort(self.fringe, new_node)
         else:
+            #print("oldR " ,node.state," ",node.cost)
             h = self.find_heuristic(node,1)
             for elem in list(range(fitness_len)):
                 if (node.state[elem] == 1):
@@ -120,12 +128,12 @@ class Tree:
                     new_state[elem] = 0
 
                     new_steps = list(node.steps)
-                    new_steps.append(elem+1)
+                    new_steps.append(self.orig.index(self.fitness[elem])+1)
 
                     new_cost = node.cost + self.fitness[elem]
 
                     new_node = Node(new_cost, h, new_state, new_steps)
-
+                    #print("newR ",new_state," ",new_cost)
                     if not self.has_repeated_states(new_node):
                         bisect.insort(self.fringe, new_node)
 
@@ -150,8 +158,8 @@ import time
 t = time.process_time()
 
 #inp = [1,2,5,10] #(a)
-inp = [1,2,5,10,3,4,14,18,20,50] #(b)
-#inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55] #(c)
+#inp = [1,2,5,10,3,4,14,18,20,50] #(b)
+inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55] #(c)
 
 state_space = Tree(inp)
 state_space.a_star()

@@ -1,5 +1,24 @@
 import bisect, itertools
 
+def second_largest(numbers):
+    m1 = m2 = float('-inf')
+    for x in numbers:
+        if x > m2:
+            if x >= m1:
+                m1, m2 = x, m1            
+            else:
+                m2 = x
+    return m2
+
+def second_smallest(numbers):
+    m1, m2 = float('inf'), float('inf')
+    for x in numbers:
+        if x <= m1:
+            m1, m2 = x, m1
+        elif x < m2:
+            m2 = x
+    return m2
+
 class Node:
     def __init__(self, cost, heuristic, state, steps):
         self.cost = cost
@@ -45,11 +64,11 @@ class Tree:
     and 2nd slowest, 3rd slowest and 4th slowest, and so on cross the bridge
     to "mask" the 2nd person's time
     '''
-    def find_heuristic(self,node):
+    def find_heuristic(self,node,place):
         l = []
         h = 0
         for elem in list(range(len(self.fitness))):
-                if node.state[elem] == 0:
+                if node.state[elem] == place:
                         l.append(self.fitness[elem])
         l = l[::-1]
         for elem in range(len(l),2):
@@ -61,7 +80,7 @@ class Tree:
         fitness_len = len(self.fitness)
         if len(node.steps) % 3 == 0:
             #print("old " ,node.state)
-            h = self.find_heuristic(node)
+            h = self.find_heuristic(node,0)
             fin = []
             left = []
             c = 0
@@ -69,10 +88,15 @@ class Tree:
                     if node.state[elem] == 0:
                             left.append(elem)
                             c += 1
+            a = min(left)
+            b = second_smallest(left)
             if c == 2:
-                fin = [ [left[0],left[1]] ]
+                fin = [[a,b]]                
             else:
-                fin = [ [left[0],left[1]] , [left[0],left[-1]] , [left[-2],left[-1]] ]
+                c = max(left)
+                d = second_largest(left)
+                fin = [[a,b],[a,c],[d,c]]
+               
             c = 0
             #print(fin)
             for elem in fin:
@@ -89,6 +113,7 @@ class Tree:
                     if not self.has_repeated_states(new_node):
                             bisect.insort(self.fringe, new_node)
         else:
+            h = self.find_heuristic(node,1)
             for elem in list(range(fitness_len)):
                 if (node.state[elem] == 1):
                     new_state = list(node.state)
@@ -99,7 +124,7 @@ class Tree:
 
                     new_cost = node.cost + self.fitness[elem]
 
-                    new_node = Node(new_cost, 0, new_state, new_steps)
+                    new_node = Node(new_cost, h, new_state, new_steps)
 
                     if not self.has_repeated_states(new_node):
                         bisect.insort(self.fringe, new_node)
@@ -124,10 +149,11 @@ class Tree:
 import time
 t = time.process_time()
 
-# inp = [1,2,5,10] #(a)
+#inp = [1,2,5,10] #(a)
 inp = [1,2,5,10,3,4,14,18,20,50] #(b)
-# inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55] #(c)
-state_space = Tree(sorted(inp))
+#inp = [1,2,5,10,12,17,24,21,20,20,11,33,15,19,55] #(c)
+
+state_space = Tree(inp)
 state_space.a_star()
 
 elapsed_time = time.process_time() - t
